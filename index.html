@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Scraper Pro | Advanced Extraction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .search-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            margin-bottom: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            border-radius: 0.5rem;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        textarea {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            color: var(--text);
+            padding: 1rem;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 120px;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 1rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1.5rem;
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .file-upload-area.dragging {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .file-upload-area i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-area p {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .file-upload-area span {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        button {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .results-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            animation: slideUp 0.4s ease-out both;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .domain-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #818cf8;
+        }
+
+        .email-count {
+            background: rgba(99, 102, 241, 0.1);
+            color: #818cf8;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .email-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .email-tag {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .email-tag:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Email Scraper Pro</h1>
+            <p class="subtitle">Extract professional emails from any domain or Excel file.</p>
+        </header>
+
+        <div class="search-card">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('text')">Direct Text</div>
+                <div class="tab" onclick="switchTab('file')">Excel/CSV Upload</div>
+            </div>
+
+            <!-- Text Input Area -->
+            <div id="textInputArea">
+                <label for="domainsInput">Enter Domains</label>
+                <textarea id="domainsInput" placeholder="example.com&#10;google.com, microsoft.com"></textarea>
+                <button id="extractBtn">
+                    <span class="loader" id="btnLoader"></span>
+                    <span id="btnText">Start Extraction</span>
+                </button>
+            </div>
+
+            <!-- File Upload Area -->
+            <div id="fileInputArea" hidden>
+                <div class="file-upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
+                    <p id="fileName">Drag & Drop Excel/CSV or <span>Browse</span></p>
+                    <input type="file" id="fileInput" accept=".xlsx, .csv">
+                </div>
+                <button id="uploadBtn">
+                    <span class="loader" id="uploadLoader"></span>
+                    <span id="uploadBtnText">Upload & Extract</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="results" class="results-container"></div>
+    </div>
+
+    <footer>
+        &copy; 2026 Email Scraper Pro. Built for volume processing.
+    </footer>
+
+    <script>
+        const switchTab = (tab) => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tab === 'text') {
+                document.getElementById('textInputArea').hidden = false;
+                document.getElementById('fileInputArea').hidden = true;
+            } else {
+                document.getElementById('textInputArea').hidden = true;
+                document.getElementById('fileInputArea').hidden = false;
+            }
+        };
+
+        const extractBtn = document.getElementById('extractBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const resultsDiv = document.getElementById('results');
+
+        // Manual Input Extraction
+        extractBtn.addEventListener('click', async () => {
+            const domains = document.getElementById('domainsInput').value.trim();
+            if (!domains) return alert('Please enter at least one domain.');
+
+            await runExtraction('/extract', { domains });
+        });
+
+        // File Input Extraction
+        const fileInput = document.getElementById('fileInput');
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                document.getElementById('fileName').innerText = fileInput.files[0].name;
+            }
+        });
+
+        uploadBtn.addEventListener('click', async () => {
+            if (fileInput.files.length === 0) return alert('Please select a file.');
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            await runExtraction('/extract-file', formData, true);
+        });
+
+        async function runExtraction(url, body, isFile = false) {
+            const currentBtn = isFile ? uploadBtn : extractBtn;
+            const currentLoader = isFile ? document.getElementById('uploadLoader') : document.getElementById('btnLoader');
+            const currentBtnText = isFile ? document.getElementById('uploadBtnText') : document.getElementById('btnText');
+
+            currentBtn.disabled = true;
+            currentLoader.style.display = 'block';
+            currentBtnText.innerText = 'Extracting...';
+            resultsDiv.innerHTML = '';
+
+            try {
+                const options = isFile ? { method: 'POST', body } : {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                };
+
+                const response = await fetch(url, options);
+                const result = await response.json();
+                renderResults(result.data);
+            } catch (error) {
+                resultsDiv.innerHTML = '<div class="result-card error-card"><p class="error-text">Failed to connect to the server.</p></div>';
+            } finally {
+                currentBtn.disabled = false;
+                currentLoader.style.display = 'none';
+                currentBtnText.innerText = isFile ? 'Upload & Extract' : 'Start Extraction';
+            }
+        }
+
+        function renderResults(data) {
+            resultsDiv.innerHTML = data.map((item, index) => {
+                const emailTags = item.emails?.length > 0 
+                    ? item.emails.map(email => `<div class="email-tag">${email}</div>`).join('')
+                    : '<p class="no-emails">No emails found.</p>';
+
+                return `
+                    <div class="result-card" style="animation-delay: ${index * 0.1}s">
+                        <div class="result-header">
+                            <span class="domain-name">${item.domain || item.input}</span>
+                            <span class="email-count">${item.count || 0} Emails</span>
+                        </div>
+                        <div class="email-list">${emailTags}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
