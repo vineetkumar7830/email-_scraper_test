@@ -152,8 +152,13 @@ async function processDomains(domains) {
     return result;
 }
 
+// Explicitly serve index.html for the root route
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "index.html"));
+});
+
 // Start server
-const PORT = 3000;
+const PORT = 3001;
 app.listen(PORT, () => {
-    console.log(`\ud83d\ude80 Server running on port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });

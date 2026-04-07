@@ -23,11 +23,11 @@ npm install
 ```
 
 ### 2. Start the Web Server (Recommended)
-This will launch the interactive dashboard on port **3000**.
+This will launch the interactive dashboard on port **3001**.
 ```bash
 node server.js
 ```
-Then, open your browser and go to: **[http://localhost:3000](http://localhost:3000)**
+Then, open your browser and go to: **[http://localhost:3001](http://localhost:3001)**
 
 ### 3. Run Batch Extraction (CLI)
 To scan domains listed in `domains.csv` and save results to `emails_results.json`:
